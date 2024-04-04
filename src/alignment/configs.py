@@ -185,6 +185,10 @@ class ModelArguments:
         default="nf4", metadata={"help": "precise the quantization type (fp4 or nf4)"}
     )
     use_bnb_nested_quant: bool = field(default=False, metadata={"help": "use nested quantization"})
+    bnb_4bit_quant_storage_dtype: Optional[str] = field(
+        default="float32",
+        metadata={"help": "Quantization storage dtype for 4bit base models"},
+    )
 
     def __post_init__(self):
         if self.load_in_8bit and self.load_in_4bit:

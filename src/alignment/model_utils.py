@@ -14,13 +14,11 @@
 # limitations under the License.
 import os
 from pathlib import Path
-from typing import Dict
 
 import torch
 from transformers import AutoTokenizer, BitsAndBytesConfig, PreTrainedTokenizer
 from transformers.trainer_utils import get_last_checkpoint
 
-from accelerate import Accelerator
 from huggingface_hub import list_repo_files
 from huggingface_hub.utils._errors import RepositoryNotFoundError
 from huggingface_hub.utils._validators import HFValidationError
@@ -28,16 +26,6 @@ from peft import LoraConfig, PeftConfig
 
 from .configs import DataArguments, DPOConfig, ModelArguments, SFTConfig
 from .data import DEFAULT_CHAT_TEMPLATE
-
-
-def get_current_device() -> int:
-    """Get the current device. For GPU we return the local process index to enable multiple GPU training."""
-    return Accelerator().local_process_index if torch.cuda.is_available() else "cpu"
-
-
-def get_kbit_device_map() -> Dict[str, int] | None:
-    """Useful for running inference with quantized models by setting `device_map=get_peft_device_map()`"""
-    return {"": get_current_device()} if torch.cuda.is_available() else None
 
 
 def get_quantization_config(model_args: ModelArguments) -> BitsAndBytesConfig | None:
@@ -51,6 +39,8 @@ def get_quantization_config(model_args: ModelArguments) -> BitsAndBytesConfig | 
             bnb_4bit_compute_dtype=compute_dtype,
             bnb_4bit_quant_type=model_args.bnb_4bit_quant_type,
             bnb_4bit_use_double_quant=model_args.use_bnb_nested_quant,
+            bnb_4bit_quant_storage=compute_dtype,
+
         )
     elif model_args.load_in_8bit:
         quantization_config = BitsAndBytesConfig(

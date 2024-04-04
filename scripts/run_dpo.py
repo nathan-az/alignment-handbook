@@ -30,7 +30,6 @@ from alignment import (
     decontaminate_humaneval,
     get_checkpoint,
     get_datasets,
-    get_kbit_device_map,
     get_peft_config,
     get_quantization_config,
     get_tokenizer,
@@ -149,7 +148,6 @@ def main():
         use_flash_attention_2=model_args.use_flash_attention_2,
         torch_dtype=torch_dtype,
         use_cache=False if training_args.gradient_checkpointing else True,
-        device_map=get_kbit_device_map() if quantization_config is not None else None,
         quantization_config=quantization_config,
     )
 
@@ -163,7 +161,6 @@ def main():
             use_flash_attention_2=model_args.use_flash_attention_2,
             torch_dtype=torch_dtype,
             use_cache=False if training_args.gradient_checkpointing else True,
-            device_map=get_kbit_device_map() if quantization_config is not None else None,
             quantization_config=quantization_config,
         )
         base_model = AutoModelForCausalLM.from_pretrained(
